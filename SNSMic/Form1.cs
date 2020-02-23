@@ -19,10 +19,10 @@ namespace SNSMic
     public partial class Form1 : Form
     {
         Amazon.RegionEndpoint region = Amazon.RegionEndpoint.EUCentral1;
-        string awsAccessKeyId = "AKIA3WM726OZOBHNWOGJ";
-        string awsSecretAccessKey = "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";
+        string awsAccessKeyId = "";
+        string awsSecretAccessKey = "";
         string message = "Volume meter thingy";
-        string topicArn = "arn:aws:sns:eu-central-1:804030968754:MyTopic";
+        string topicArn = "";
 
         float max;
         bool isSnsEnabled = false;
