@@ -31,7 +31,7 @@ namespace SNSMic
         DateTime lastPublish = DateTime.Now.AddSeconds(-11);
         bool soundDetected = false;
         WaveInEvent waveIn;
-        SoundS3Writer soundWriter;
+        SoundWriter soundWriter;
         //WaveFileWriter waveFile;
         //bool isRecording = false;
 
@@ -70,7 +70,8 @@ namespace SNSMic
                 TopicArn = topicArn
             };
 
-            soundWriter = new SoundS3Writer(awsAccessKeyId, awsSecretAccessKey, region);
+            //soundWriter = new SoundS3Writer(awsAccessKeyId, awsSecretAccessKey, region);
+            soundWriter = new SoundFileWriter();
 
             waveIn = new WaveInEvent();
             waveIn.DataAvailable += OnDataAvailable;
@@ -88,8 +89,7 @@ namespace SNSMic
                 //string filename = @".\" + DateTime.Now.ToLongDateString() + DateTime.Now.ToLongTimeString().Replace(":","") + ".wav";
                 //waveFile = new WaveFileWriter(filename, waveIn.WaveFormat);
                 //isRecording = true;
-                soundWriter = new SoundS3Writer(awsAccessKeyId, awsSecretAccessKey, region);
-                soundWriter.CreateSoundFile(waveIn);
+                soundWriter.Initialize(waveIn);
 
                 var response = client.Publish(request);
                 lastPublish = DateTime.Now;

@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using System.IO;
 
 using NAudio.Wave;
 
@@ -10,26 +11,25 @@ namespace SNSMic
 {
     public partial class SoundWriter
     {
-        public WaveFileWriter waveFile;
+        public Stream waveStream;
         public bool isRecording;
         public string filePath;
 
-        public void CreateSoundFile(WaveInEvent waveIn)
+        public void Initialize(WaveInEvent waveIn)
         {
             filePath = @".\" + DateTime.Now.ToLongDateString() + DateTime.Now.ToLongTimeString().Replace(":", "") + ".wav";
-            waveFile = new WaveFileWriter(filePath, waveIn.WaveFormat);
+            waveStream = new MemoryStream();
             isRecording = true;
         }
 
         public void Write(WaveInEventArgs args)
         {
-            waveFile.Write(args.Buffer, 0, args.BytesRecorded);
-            waveFile.Flush();
+            waveStream.Write(args.Buffer, 0, args.BytesRecorded);
+            //waveStream.Flush();
         }
 
-        public async void Close()
+        virtual public async void Close()
         {
-            waveFile.Close();
             isRecording = false;
         }
     }
