@@ -9,6 +9,8 @@ using System.Threading.Tasks;
 using System.Windows.Forms;
 
 using NAudio.Wave;
+using Amazon.Runtime;
+using Amazon.Runtime.CredentialManagement;
 using Amazon.SimpleNotificationService;
 using Amazon.SimpleNotificationService.Model;
 using Amazon.S3;
@@ -63,15 +65,22 @@ namespace SNSMic
         {
             InitializeComponent();
 
-            client = new AmazonSimpleNotificationServiceClient(region: region, awsAccessKeyId: awsAccessKeyId, awsSecretAccessKey: awsSecretAccessKey);
+            var chain = new CredentialProfileStoreChain();
+            AWSCredentials awsCredentials;
+            if (chain.TryGetAWSCredentials("default", out awsCredentials))
+            {
+                var keys = awsCredentials.GetCredentials();
+                client = new AmazonSimpleNotificationServiceClient(region: region, awsAccessKeyId: keys.AccessKey, awsSecretAccessKey: keys.SecretKey);
+                soundWriter = new SoundS3Writer(keys.AccessKey, keys.SecretKey, region);
+                //soundWriter = new SoundFileWriter();
+            }
             request = new PublishRequest
             {
                 Message = message,
                 TopicArn = topicArn
             };
 
-            //soundWriter = new SoundS3Writer(awsAccessKeyId, awsSecretAccessKey, region);
-            soundWriter = new SoundFileWriter();
+            
 
             waveIn = new WaveInEvent();
             waveIn.DataAvailable += OnDataAvailable;
@@ -93,7 +102,7 @@ namespace SNSMic
 
                 var response = client.Publish(request);
                 lastPublish = DateTime.Now;
-                //MessageBox.Show("Notification has been sent");
+                MessageBox.Show("Notification has been sent");
             }
             else if (isSnsEnabled && !soundDetected && soundWriter.isRecording)
             {

@@ -4,6 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using System.IO;
+using System.Diagnostics;
 
 using NAudio.Wave;
 
@@ -11,26 +12,31 @@ namespace SNSMic
 {
     public partial class SoundWriter
     {
-        public Stream waveStream;
+        public MemoryStream memoryStream;
         public bool isRecording;
         public string filePath;
+        public WaveFileWriter wf;
+        WaveInEvent waveIn;
 
         public void Initialize(WaveInEvent waveIn)
         {
-            filePath = @".\" + DateTime.Now.ToLongDateString() + DateTime.Now.ToLongTimeString().Replace(":", "") + ".wav";
-            waveStream = new MemoryStream();
+            filePath = DateTime.Now.ToShortDateString().Replace("/", "-") + "_" + DateTime.Now.ToLongTimeString().Replace(":", "-") + ".wav";
+            memoryStream = new MemoryStream();
+            wf = new WaveFileWriter(memoryStream, waveIn.WaveFormat);
             isRecording = true;
+            this.waveIn = waveIn;
         }
 
         public void Write(WaveInEventArgs args)
         {
-            waveStream.Write(args.Buffer, 0, args.BytesRecorded);
-            //waveStream.Flush();
+            wf.Write(args.Buffer, 0, args.BytesRecorded);
         }
 
         virtual public async void Close()
         {
             isRecording = false;
+            wf.Flush();
+            memoryStream.Seek(0, SeekOrigin.Begin);
         }
     }
 }

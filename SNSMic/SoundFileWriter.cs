@@ -14,10 +14,9 @@ namespace SNSMic
             base.Close();
             using (FileStream  f = new FileStream(filePath, FileMode.Create))
             {
-                waveStream.Seek(0, SeekOrigin.Begin);
-                waveStream.CopyTo(f);
+                memoryStream.CopyTo(f);
             }
-            waveStream.Close();
+            memoryStream.Close();
         }
     }
 }
